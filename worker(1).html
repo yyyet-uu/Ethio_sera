@@ -1,0 +1,51 @@
+<!-- worker.html -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Worker Registration - Ethio Sera</title>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js"></script>
+  <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet" />
+  <script>
+    const SUPABASE_URL = 'https://xhnwntjnkdkwafjlvksw.supabase.co';
+    const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InhobndudGpua2Rrd2Fmamx2a3N3Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTI5NjE2ODYsImV4cCI6MjA2ODUzNzY4Nn0.Izj0UNe09My048pxEFoZggg80bGQsHILMYnbUNkPRPs';
+    const supabase = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+    async function registerWorker(e) {
+      e.preventDefault();
+      const email = document.getElementById('email').value;
+      const password = document.getElementById('password').value;
+      const full_name = document.getElementById('name').value;
+      const phone = document.getElementById('phone').value;
+      const skills = document.getElementById('skills').value.split(',').map(s => s.trim());
+
+      const { data, error } = await supabase.auth.signUp({ email, password });
+      if (error) return alert(error.message);
+
+      const user = data.user;
+      await supabase.from('profiles').insert({
+        user_id: user.id,
+        role: 'worker',
+        full_name,
+        phone,
+        skills
+      });
+
+      localStorage.setItem('role', 'worker');
+      window.location.href = 'main.html';
+    }
+  </script>
+</head>
+<body class="flex items-center justify-center h-screen bg-gray-100">
+  <form onsubmit="registerWorker(event)" class="bg-white p-6 rounded shadow w-full max-w-md">
+    <h2 class="text-2xl font-bold mb-4 text-center">Worker Registration</h2>
+    <input id="name" type="text" placeholder="Full Name" required class="w-full p-2 mb-2 border rounded" />
+    <input id="phone" type="text" placeholder="Phone Number" required class="w-full p-2 mb-2 border rounded" />
+    <input id="skills" type="text" placeholder="Skills (comma separated)" required class="w-full p-2 mb-2 border rounded" />
+    <input id="email" type="email" placeholder="Email" required class="w-full p-2 mb-2 border rounded" />
+    <input id="password" type="password" placeholder="Password" required class="w-full p-2 mb-4 border rounded" />
+    <button type="submit" class="w-full bg-blue-600 text-white py-2 rounded">Register</button>
+  </form>
+</body>
+</html>
